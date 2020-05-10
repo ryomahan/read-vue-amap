@@ -1,12 +1,13 @@
-// polyfills
+// polyfills | JS 兼容脚本
 import './polyfills';
 
+// 将任何其他格式转换为大驼峰格式例如：foo-bar => FooBar | --foo.bar => FooBar
 import upperCamelCase from 'uppercamelcase';
 
 // 初始化接口
 import {initAMapApiLoader} from './services/injected-amap-api-instance';
 
-// 组建导入
+// 组件导入
 import AMap from './components/amap.vue';
 import AMapMarker from './components/amap-marker.vue';
 import AMapSearchBox from './components/amap-search-box.vue';
@@ -46,18 +47,26 @@ let VueAMap = {
   AMapManager
 };
 
+// TODO route 2
 VueAMap.install = (Vue) => {
   if (VueAMap.installed) return;
+  // optionMergeStrategies 自定义合并策略的选项
+  // TODO 存疑-调用 vue.deferredReady = 调用 vue.created 是这个意思吗
   Vue.config.optionMergeStrategies.deferredReady = Vue.config.optionMergeStrategies.created;
   components.map(_component => {
     // register component
     Vue.component(_component.name, _component);
 
     // component cache
+    // TODO 存疑-这一步的作用是什么？
+    // VueAMap["Amap"] = AMap
     VueAMap[upperCamelCase(_component.name).replace(/^El/, '')] = _component;
   });
 };
 
+// 为啥还要再定义一个 install 方法 | 难道说 Vue.use() 之后调用的是这个方法？
+// 阅读了 vue-router 和 vuex 初始化部分的源码之后发现确实是调用这一个 install 函数
+// TODO route 1
 const install = function(Vue, opts = {}) {
   /* istanbul ignore if */
   if (install.installed) return;
@@ -67,13 +76,13 @@ const install = function(Vue, opts = {}) {
 /* istanbul ignore if */
 if (typeof window !== 'undefined' && window.Vue) {
   install(window.Vue);
-};
+}
 
 export default VueAMap;
 
 export {
-  AMapManager,
-  initAMapApiLoader,
+  AMapManager, // 用来在创建地图实例之后对其进行管理
+  initAMapApiLoader, // 用来初始化
   createCustomComponent
 };
 export { lazyAMapApiLoaderInstance } from './services/injected-amap-api-instance';

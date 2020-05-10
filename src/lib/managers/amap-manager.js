@@ -1,5 +1,6 @@
 export default class AMapManager {
   constructor() {
+    // 构造函数
     this._componentMap = new Map();
     this._map = null;
   }
